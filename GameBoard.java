@@ -1,91 +1,62 @@
-import javax.swing.*;
-import java.awt.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 
-public class GameBoard extends JFrame {
-    private static final int SIZE = 8;
-    private JPanel[][] squares = new JPanel[SIZE][SIZE];
-    private ImageIcon exampleIcon;
-    public String[][] piecesArray;
-
+public class GameBoard {
+    private ArrayList<ArrayList<GamePiece>> board;
 
     public GameBoard() {
-        setTitle("Chess Board");
-        setSize(600, 600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new GridLayout(SIZE, SIZE));
+        board = new ArrayList<>();
 
-       
+        // 初始化棋盘
+        board.add(new ArrayList<>(Arrays.asList( // 黑方第一排
+            new GamePiece("Rook", 5), new GamePiece("Knight", 3), new GamePiece("Bishop", 3),
+            new GamePiece("Queen", 9), new GamePiece("King", 10), new GamePiece("Bishop", 3),
+            new GamePiece("Knight", 3), new GamePiece("Rook", 5)
+        )));
 
-        // create your 2d Array to store your image variables and assign positions
-        // add your code here
-        // this line of code initializes a new 2D Array of Strings the size of 1 row and 2 columns
-        // your 2D array must be a minimum of 6 rows x 2 columns
-        // you may add a row for every image if you'd like to have every square be a different color/image
+        board.add(new ArrayList<>(Arrays.asList( // 黑方兵
+            new GamePiece("Pawn", 1), new GamePiece("Pawn", 1), new GamePiece("Pawn", 1),
+            new GamePiece("Pawn", 1), new GamePiece("Pawn", 1), new GamePiece("Pawn", 1),
+            new GamePiece("Pawn", 1), new GamePiece("Pawn", 1)
+        )));
 
-        piecesArray = new String[1][2];
-        piecesArray[0][0]= "temp2.png";
-        piecesArray[0][1]= "HP:200";
-
-        //print the contents of your 2D array
-        //this is a requirement to show your 2D array is not sorted at the beginning of your program
-
-        for (int i = 0; i < piecesArray.length; i++) {
-            for (int j = 0; j < piecesArray[i].length; j++) {
-                System.out.println("piecesArray[" + i + "][" + j + "] = " + piecesArray[i][j]);
-            }
+        for (int i = 0; i < 4; i++) { // 4 行空白
+            board.add(new ArrayList<>(Arrays.asList(
+                new GamePiece("Empty", 0), new GamePiece("Empty", 0), new GamePiece("Empty", 0),
+                new GamePiece("Empty", 0), new GamePiece("Empty", 0), new GamePiece("Empty", 0),
+                new GamePiece("Empty", 0), new GamePiece("Empty", 0)
+            )));
         }
 
-        exampleIcon = new ImageIcon(piecesArray[0][0]); // Load image file
+        board.add(new ArrayList<>(Arrays.asList( // 白方兵
+            new GamePiece("Pawn", 1), new GamePiece("Pawn", 1), new GamePiece("Pawn", 1),
+            new GamePiece("Pawn", 1), new GamePiece("Pawn", 1), new GamePiece("Pawn", 1),
+            new GamePiece("Pawn", 1), new GamePiece("Pawn", 1)
+        )));
 
-        initializeBoard();
+        board.add(new ArrayList<>(Arrays.asList( // 白方第一排
+            new GamePiece("Rook", 5), new GamePiece("Knight", 3), new GamePiece("Bishop", 3),
+            new GamePiece("Queen", 9), new GamePiece("King", 10), new GamePiece("Bishop", 3),
+            new GamePiece("Knight", 3), new GamePiece("Rook", 5)
+        )));
     }
 
-    private void initializeBoard() {
-        for (int row = 0; row < SIZE; row++) {
-            for (int col = 0; col < SIZE; col++) {
-                squares[row][col] = new JPanel(new BorderLayout());
+    public ArrayList<ArrayList<GamePiece>> getBoard() {
+        return board;
+    }
 
-                // creates the checkered pattern with the two colors
-                // you can add more colors or take away any you'd like
-                
-                if (row >= 2 && row <= 5) {
-                    squares[row][col].setBackground(new Color(139, 69, 19)); // brown
-                } else if ((row + col) % 2 == 0) {
-                    squares[row][col].setBackground(new Color(55, 255, 55)); //dark green
-                } else {
-                    squares[row][col].setBackground(new Color(200, 255, 200)); //lighter green
+    public void sortAllRows() {
+        for (int i = 0; i < board.size(); i++) {
+            boolean hasPiece = false;
+            for (GamePiece piece : board.get(i)) {
+                if (!piece.getName().equals("Empty")) { // 检查是否为非空格子
+                    hasPiece = true;
+                    break;
                 }
-
-
-                // this is where your sorting method will be called 
-                // you will use the column 2 values to arrange your images to the board
-                // be sure to sort them before you add them onto the board 
-                // you will use a loop to add to your 2D Array, below is an example of how to add ONE image to ONE square
-                
-                // Adding an image to specific positions (e.g., first row)
-                if (row == 0 && col==0) {
-                    Image scaledImage = exampleIcon.getImage().getScaledInstance(60, 60, Image.SCALE_SMOOTH);
-                    JLabel pieceLabel = new JLabel(new ImageIcon(scaledImage));
-                    JLabel textLabel = new JLabel(piecesArray[0][1], SwingConstants.CENTER);
-                    squares[row][col].add(pieceLabel, BorderLayout.CENTER);
-                    squares[row][col].add(textLabel, BorderLayout.SOUTH);
-                }
-
-                
-                add(squares[row][col]);
+            }
+            if (hasPiece) {
+                board.set(i, MergeSort.sort(board.get(i))); // 排序该行
             }
         }
-    }
-
-
-    // add your merge sort method here
-    // add a comment to every line of code that describes what the line is accomplishing
-    // your mergeSort method does not have to return any value
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            GameBoard board = new GameBoard();
-            board.setVisible(true);
-        });
     }
 }
